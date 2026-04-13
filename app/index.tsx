@@ -1,93 +1,36 @@
-import React from "react";
-import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import Card from "./card";
+import { useEffect, useState } from "react";
+import { router } from "expo-router";
+import { View, ActivityIndicator } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Index() {
-  return (
-    <SafeAreaProvider>
-      <SafeAreaView style={{ flex: 1 }}>
-        <ScrollView
-          style={{ flex: 1 }}
-          contentContainerStyle={styles.container}
-          showsVerticalScrollIndicator={true}
-        >
-          <Image
-            source={require("../assets/images/joshua.jpg")}
-            style={styles.profileImage}
-          />
-          
-          <Text style={styles.name}>Joshua P. Cejuela</Text>
-          <Text style={styles.bio}>
-            Software enthusiast interested in AI, Data Science, and Mobile App
-            Development.
-          </Text>
+  const [loading, setLoading] = useState(true);
 
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Courses</Text>
+  useEffect(() => {
+    const checkLogin = async () => {
+      try {
+        const loggedIn = await AsyncStorage.getItem("loggedIn");
+        if (loggedIn === "true") {
+          router.replace("/home");
+        } else {
+          router.replace("/login");
+        }
+      } catch (e) {
+        router.replace("/login");
+      } finally {
+        setLoading(false);
+      }
+    };
+    checkLogin();
+  }, []);
 
-            <Card
-              title="React Native Development"
-              description="Mobile app development using React Native."
-            />
-            <Card
-              title="Data Science Fundamentals"
-              description="Learn data analysis and machine learning basics."
-            />
-            <Card
-              title="Cybersecurity Basics"
-              description="Understand vulnerabilities and protection methods."
-            />
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#F5F7FB" }}>
+        <ActivityIndicator size="large" color="#5A67F2" />
+      </View>
+    );
+  }
 
-            {/* Extra cards to demonstrate scrolling */}
-            <Card
-              title="UI/UX Design"
-              description="Principles of user interface and experience design."
-            />
-            <Card
-              title="Backend Development"
-              description="Building APIs and server-side applications."
-            />
-            <Card
-              title="Cloud Computing"
-              description="Introduction to AWS and cloud services."
-            />
-          </View>
-        </ScrollView>
-      </SafeAreaView>
-    </SafeAreaProvider>
-  );
-  
+  return null;
 }
-
-const styles = StyleSheet.create({
-  container: {
-    padding: 20,
-    alignItems: "center",
-  },
-  profileImage: {
-    width: 130,
-    height: 130,
-    borderRadius: 65,
-    marginBottom: 15,
-  },
-  name: {
-    fontSize: 22,
-    fontWeight: "bold",
-  },
-  bio: {
-    fontSize: 14,
-    textAlign: "center",
-    marginTop: 10,
-    marginBottom: 20,
-    color: "gray",
-  },
-  section: {
-    width: "100%",
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "bold",       
-    marginBottom: 10,
-  },
-});
